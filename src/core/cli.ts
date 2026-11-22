@@ -1,12 +1,13 @@
 import {
-    GatewayIntentBits,
-    REST,
-    SlashCommandBuilder,
+  GatewayIntentBits,
+  REST,
+  SlashCommandBuilder,
   type ChatInputCommandInteraction,
   Client,
   type ClientOptions,
   type RESTPostAPIApplicationCommandsJSONBody,
   Routes,
+  type PermissionFlagsBits,
 } from "discord.js";
 import { readDir } from "../utils/index.js";
 import { logger } from "../utils/logger.js";
@@ -38,17 +39,25 @@ export type command = RESTPostAPIApplicationCommandsJSONBody & {
     description: string;
     required: boolean;
   };
-  run: (interaction: ChatInputCommandInteraction) => unknown;
+  permissions?: string;
+  run: (interaction: ChatInputCommandInteraction, client: BotClient) => unknown;
 };
 
 export class BotClient extends Client {
-  private commands: Map<string, command> = new Map();
+  public commands: Map<string, command> = new Map();
   private path: string;
   private readonly secretToken: string;
   private readonly clientId: string;
   private readonly clientSecret: string;
   public logger = logger;
-  constructor(path: string, { secretToken, clientId, clientSecret }: { secretToken: string; clientId: string; clientSecret: string }) {
+  constructor(
+    path: string,
+    {
+      secretToken,
+      clientId,
+      clientSecret,
+    }: { secretToken: string; clientId: string; clientSecret: string },
+  ) {
     super({
       intents: [
         GatewayIntentBits.Guilds,
@@ -73,6 +82,12 @@ export class BotClient extends Client {
           .setDescription(command.userOption!.description)
           .setRequired(command.userOption!.required),
       );
+    }
+    if (command.nsfw) {
+      builder.setNSFW(command.nsfw);
+    }
+    if (command.permissions) {
+      builder.setDefaultMemberPermissions(command.permissions).setContexts(0);
     }
     if (command.StringOption) {
       builder.addStringOption((option) => {
@@ -113,44 +128,44 @@ export class BotClient extends Client {
   }
   private async loadEvents(): Promise<void> {
     try {
-        const path = this.path + "/events";
-        const files = await readDir(path);
-        if (files.length === 0) {
-            this.logger.warn(`No event files found in ${path}`);
-            return;
+      const path = this.path + "/events";
+      const files = await readDir(path);
+      if (files.length === 0) {
+        this.logger.warn(`No event files found in ${path}`);
+        return;
+      }
+      for (const file of files) {
+        if (!file.endsWith(".js")) continue;
+        this.logger.info(`Loading event: ${file}`);
+        const eventModule = await import(`${path}/${file}`);
+        const event = eventModule.default;
+        if (typeof event === "function") {
+          await event(this);
+        } else {
+          this.logger.warn(`Event in ${file} is not a function`);
+          continue;
         }
-        for (const file of files) {
-            if (!file.endsWith(".js")) continue;
-            this.logger.info(`Loading event: ${file}`);
-            const eventModule = await import(`${path}/${file}`);
-            const event = eventModule.default;
-             if (typeof event === "function") {
-                await event(this);
-            } else {
-                this.logger.warn(`Event in ${file} is not a function`);
-                continue;
-            }
-        }
+      }
     } catch (error) {
-        this.logger.error("Error loading events:", error);
+      this.logger.error("Error loading events:", error);
     }
   }
   private async loadCommands(): Promise<void> {
     try {
-        const path = this.path + "/commands";
-        const files = await readDir(path);
-        if (files.length === 0) {
-            this.logger.warn(`No command files found in ${path}`);
-            return;
-        }
-        for (const file of files) {
-            if (!file.endsWith(".js")) continue;
-            const commandModule = await import(`${path}/${file}`);
-            const command: command = commandModule.default;
-            await this.build(command);
-        }
+      const path = this.path + "/commands";
+      const files = await readDir(path);
+      if (files.length === 0) {
+        this.logger.warn(`No command files found in ${path}`);
+        return;
+      }
+      for (const file of files) {
+        if (!file.endsWith(".js")) continue;
+        const commandModule = await import(`${path}/${file}`);
+        const command: command = commandModule.default;
+        await this.build(command);
+      }
     } catch (error) {
-        this.logger.error("Error loading commands:", error);
+      this.logger.error("Error loading commands:", error);
     }
   }
   private getAllCommands(): command[] {
@@ -170,6 +185,8 @@ export class BotClient extends Client {
       this.logger.warn("No commands to register");
       return;
     }
-    await rest.put(Routes.applicationCommands(this.clientId), {body: commandsArray});
+    await rest.put(Routes.applicationCommands(this.clientId), {
+      body: commandsArray,
+    });
   }
 }

@@ -31,3 +31,11 @@ export async function readDir(path: string): Promise<string[]> {
   }
 }
 
+export function toNumber(value: unknown): number | undefined {
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const num = Number(value);
+    return isNaN(num) ? undefined : num;
+  }
+  return undefined;
+}
