@@ -1,0 +1,22 @@
+{
+  "name": "buncord",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "tsc && bun dist",
+    "typecheck": "bun check"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.2.0",
+    "chalk": "^6.0.1",
+    "discord.js": "^14.28.1",
+    "dotenv": "^18.0.10"
+  }
+}
