@@ -55,7 +55,7 @@ export default <command>{
     if (cache.get(guild.id)) {
       await interaction.reply({
         content:
-          "someone have already searched for characters recently. Please wait a few minutes before searching again.",
+          "someone else have already searched for characters recently. Please wait a few minutes before searching again.",
         flags: 64,
       });
       return;
@@ -74,7 +74,7 @@ export default <command>{
     const characters = searched.slice(0, 10);
     const total = characters.length;
     let page = 0;
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: 64, ephemeral: true });
 
     const buildEmbed = (index: number) => {
       const character = characters[index]!;

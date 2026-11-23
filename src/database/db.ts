@@ -154,6 +154,7 @@ export class ChatbotChannelRepository extends BaseRepository<chatbotChannels> {
       channel_id: channelId,
       created_by: userId,
       created_at: Math.floor(Date.now() / 1000),
+      style: "normal",
     });
 
     if (previous) this.channelIds.delete(previous.channel_id);

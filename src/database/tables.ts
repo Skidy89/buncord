@@ -13,11 +13,14 @@ export const TABLES = {
         created_at INTEGER DEFAULT (unixepoch()),
         character_name TEXT,
         character_id TEXT,
-        character_avatar_url TEXT
+        character_avatar_url TEXT,
+        style TEXT DEFAULT 'normal'
   )`,
 };
 
-export const ALTER_TABLES: string[] = [];
+export const ALTER_TABLES: string[] = [
+  "ALTER TABLE chatbot_channels ADD COLUMN style TEXT DEFAULT 'normal'",
+];
 
 export const INDEX_TABLES = {
   WARNS: `
@@ -43,6 +46,7 @@ export type chatbotChannels = {
   channel_id: string;
   created_by: string;
   created_at: number;
+  style: "normal" | "embedded";
   character_name?: string;
   character_id?: string;
   character_avatar_url?: string;
@@ -56,6 +60,7 @@ export const defaultChatbotChannels = (
   character_avatar_url: "",
   character_id: "",
   character_name: "",
+  style: "normal",
   created_at: Math.floor(Date.now() / 1000),
 });
 export const defaultWarns = (id: string): Partial<warns> => ({
