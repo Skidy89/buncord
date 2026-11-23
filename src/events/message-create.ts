@@ -6,14 +6,16 @@ import { chatBot } from "../database/db.js";
 export default (client: BotClient) => {
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
-    if (!message.mentions.has(client.user?.id ?? "")) return;
+    if (!message.mentions.has(client.user?.id ?? "", { ignoreRoles: true, ignoreEveryone: true })) return;
     const guild = message.guild;
     if (!guild) return;
+ 
     const c = await chatBot.findById(guild.id);
     if (!c)
       return await message.reply(
         "No character is set up for this server. Please use the `/setup` command to set one up.",
       );
+    if (message.channelId !== c.channel_id) return;
     const channel = message.channel;
     await channel.sendTyping();
     try {
