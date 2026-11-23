@@ -54,14 +54,10 @@ export class DatabaseDataBuilderService {
       READY_TIMEOUT_MS,
     );
     this.readyTimer.unref();
-
-    this.worker = new Worker(new URL("./database-worker.js", import.meta.url), {
+    const dbPath = path.join("database", "buncord.db");
+    this.worker = new Worker(new URL("./worker.js", import.meta.url), {
       workerData: {
-        path: path.join(
-          path.dirname(process.execPath),
-          "database",
-          "buncord.db",
-        ),
+        path: dbPath,
         pragma: DATABASE_PRAGMA,
       },
     });

@@ -7,7 +7,6 @@ import {
   type ClientOptions,
   type RESTPostAPIApplicationCommandsJSONBody,
   Routes,
-  type PermissionFlagsBits,
 } from "discord.js";
 import { readDir } from "../utils/index.js";
 import { logger } from "../utils/logger.js";

@@ -213,7 +213,7 @@
 
     "node-cache": ["node-cache@5.1.2", "", { "dependencies": { "clone": "2.x" } }, "sha512-t1QzWwnk4sjLWaQAS8CHgOJ+RAfmHpxFWmc36IWTiWHQfs0w5JDMBS1b1ZxQteo0vVVuWJvIUKHDkkeK7vIGCg=="],
 
-    "node_characterai": ["node_characterai@github:skidy89/node_characterai-2.0#e673b3e", { "dependencies": { "@livekit/rtc-node": "^0.13.20", "@napi-rs/image": "^1.16.0", "@types/json-bigint": "^1.0.4", "@types/uuid": "^10.0.0", "json-bigint": "^1.0.0", "node-cache": "^5.1.2", "uuid": "^14.0.1", "ws": "^8.21.0" }, "hasInstallScript": true }, "Skidy89-node_characterai-2.0-e673b3e", "sha512-CFyxYFZtgeaIjY1TmHNXc0/f1Rlc6LOWzhiOUVNMHK4XP0yhHUW65AvMZlKdovxPqxa2xsfZF+Fib0LDMWCDbA=="],
+    "node_characterai": ["node_characterai@github:skidy89/node_characterai-2.0#ecbc6fd", { "dependencies": { "@livekit/rtc-node": "^0.13.20", "@napi-rs/image": "^1.16.0", "@types/json-bigint": "^1.0.4", "@types/uuid": "^10.0.0", "json-bigint": "^1.0.0", "node-cache": "^5.1.2", "uuid": "^14.0.1", "ws": "^8.21.0" }, "hasInstallScript": true }, "Skidy89-node_characterai-2.0-ecbc6fd", "sha512-b54pJHtWNWcD32Lq2D+sPBBNKZhkzMryaBVIscIxE+b1wVBjSXmvTJc2ZXCrcsmqjJJd1Q0mxoX224YagNubJA=="],
 
     "on-exit-leak-free": ["on-exit-leak-free@2.1.2", "", {}, "sha512-0eJJY6hXLGf1udHwfNftBqH+g73EU4B504nZeKpz1sYRKafAghwxEJunB2O7rDZkL4PGfsMVnTXZ2EjibbqcsA=="],
 

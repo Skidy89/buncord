@@ -1,8 +1,12 @@
-import type { LRUCache } from "lru-cache/raw";
+import { LRUCache } from "lru-cache/raw";
 import { get, query, run, transaction } from "./query.js";
 import { placeholdersSetData, sanitizeObject } from "./utils.js";
 import type { DatabaseOperation } from "./worker.js";
-import { defaultWarns } from "./tables.js";
+import {
+  defaultChatbotChannels,
+  defaultWarns,
+  type chatbotChannels,
+} from "./tables.js";
 
 type PendingUpdate = Record<string, unknown>;
 
@@ -52,12 +56,24 @@ class BaseRepository<T extends object> {
 
     let entry: T | undefined;
     if (this.table === "warns") entry = defaultWarns(id) as T;
+    if (this.table === "chatbot_channels")
+      entry = defaultChatbotChannels(id) as T;
     if (!entry)
       throw new Error(`Could not create default row for ${this.table}`);
 
     await this.insertData(entry);
     this.cache.set(id, entry);
     return entry;
+  }
+  async findById(id: string): Promise<T | undefined> {
+    const cached = this.cache.get(id);
+    if (cached) return cached;
+
+    const row = await get<T>(`SELECT * FROM ${this.table} WHERE id = ?`, [id]);
+    if (!row) return undefined;
+
+    this.cache.set(id, row);
+    return row;
   }
 
   getByIdAsync(id: string): Promise<T> {
@@ -100,3 +116,56 @@ class BaseRepository<T extends object> {
     this.cache.clear();
   }
 }
+
+export class ChatbotChannelRepository extends BaseRepository<chatbotChannels> {
+  private channelIds = new Set<string>();
+
+  constructor(cache: LRUCache<string, chatbotChannels>) {
+    super("chatbot_channels", cache);
+  }
+
+  async load(): Promise<void> {
+    const rows = (await query({
+      sql: "SELECT id, channel_id FROM chatbot_channels",
+      params: [],
+      mode: "all",
+    })) as Pick<chatbotChannels, "id" | "channel_id">[];
+
+    this.channelIds = new Set(rows.map((r) => r.channel_id));
+  }
+
+  isChatbotChannel(channelId: string): boolean {
+    return this.channelIds.has(channelId);
+  }
+
+  async getChannelId(guildId: string): Promise<string | undefined> {
+    return (await this.findById(guildId))?.channel_id;
+  }
+
+  async register(
+    guildId: string,
+    channelId: string,
+    userId: string,
+  ): Promise<void> {
+    const previous = await this.findById(guildId);
+
+    await this.insertData({
+      id: guildId,
+      channel_id: channelId,
+      created_by: userId,
+      created_at: Math.floor(Date.now() / 1000),
+    });
+
+    if (previous) this.channelIds.delete(previous.channel_id);
+    this.channelIds.add(channelId);
+  }
+
+  async unregister(guildId: string, channelId: string): Promise<void> {
+    await this.deleteById(guildId);
+    this.channelIds.delete(channelId);
+  }
+}
+
+export const chatBot = new ChatbotChannelRepository(
+  new LRUCache<string, chatbotChannels>({ max: 1000 }),
+);

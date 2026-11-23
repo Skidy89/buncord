@@ -13,16 +13,17 @@ if (
   !process.env.DISCORD_TOKEN ||
   !process.env.DISCORD_CLIENT_ID ||
   !process.env.DISCORD_CLIENT_SECRET ||
-  !process.env.CHARACTER_AI_TOKEN
+  !process.env.CHARACTER_AI_TOKEN ||
+  !process.env.CHARACTER_AI_WEB_NEXT_AUTH
 ) {
   throw new Error(
     "Missing required environment variables: SECRET_TOKEN, CLIENT_ID, CLIENT_SECRET, CHARACTER_AI_TOKEN",
   );
 }
-CAICli.setToken(process.env.CHARACTER_AI_TOKEN);
-CAICli.getCharacters("meisho doto").then((characters) => {
-  console.log(JSON.stringify(characters, null, 2));
-});
+CAICli.setToken(
+  process.env.CHARACTER_AI_TOKEN,
+  process.env.CHARACTER_AI_WEB_NEXT_AUTH,
+);
 const client = new BotClient(___dirname, {
   secretToken: process.env.DISCORD_TOKEN!,
   clientId: process.env.DISCORD_CLIENT_ID!,
