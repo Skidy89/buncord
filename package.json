@@ -20,6 +20,8 @@
     "chalk": "^6.0.1",
     "discord.js": "^14.28.1",
     "dotenv": "^18.0.10",
-    "lru-cache": "^11.5.3"
+    "lru-cache": "^11.5.3",
+    "node_characterai": "github:skidy89/node_characterai-2.0",
+    "undici": "^8.13.1"
   }
 }

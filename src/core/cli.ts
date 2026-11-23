@@ -11,6 +11,7 @@ import {
 } from "discord.js";
 import { readDir } from "../utils/index.js";
 import { logger } from "../utils/logger.js";
+import { Agent } from "undici";
 
 export type command = RESTPostAPIApplicationCommandsJSONBody & {
   description: string;
@@ -65,7 +66,14 @@ export class BotClient extends Client {
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildVoiceStates,
       ],
-    } as ClientOptions);
+      rest: {
+        agent: new Agent({
+          keepAliveTimeout: 60000,
+          keepAliveMaxTimeout: 600000,
+          connections: 10,
+        }),
+      },
+    } as unknown as ClientOptions);
     this.path = path;
     this.secretToken = secretToken;
     this.clientId = clientId;

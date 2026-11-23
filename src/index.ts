@@ -2,6 +2,9 @@ import { fileURLToPath } from "bun";
 import { BotClient } from "./core/cli.js";
 import dotenv from "dotenv";
 import path from "path";
+import dns from "node:dns";
+import { CAICli } from "./character-ai/character.js";
+dns.setDefaultResultOrder("ipv4first");
 const ___filename = fileURLToPath(import.meta.url);
 const ___dirname = path.dirname(___filename);
 
@@ -9,13 +12,17 @@ dotenv.config();
 if (
   !process.env.DISCORD_TOKEN ||
   !process.env.DISCORD_CLIENT_ID ||
-  !process.env.DISCORD_CLIENT_SECRET
+  !process.env.DISCORD_CLIENT_SECRET ||
+  !process.env.CHARACTER_AI_TOKEN
 ) {
   throw new Error(
-    "Missing required environment variables: SECRET_TOKEN, CLIENT_ID, CLIENT_SECRET",
+    "Missing required environment variables: SECRET_TOKEN, CLIENT_ID, CLIENT_SECRET, CHARACTER_AI_TOKEN",
   );
 }
-
+CAICli.setToken(process.env.CHARACTER_AI_TOKEN);
+CAICli.getCharacters("meisho doto").then((characters) => {
+  console.log(JSON.stringify(characters, null, 2));
+});
 const client = new BotClient(___dirname, {
   secretToken: process.env.DISCORD_TOKEN!,
   clientId: process.env.DISCORD_CLIENT_ID!,
